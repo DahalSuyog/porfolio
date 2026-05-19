@@ -2,15 +2,14 @@
 /stitch_neural_rl_portfolio/
 
 # Dependencies and package locks
-/portfolio/node_modules/
 /node_modules/
-/portfolio/.pnp
+/.pnp
 .pnp.*
 
 # Next.js build directories
-/portfolio/.next/
-/portfolio/out/
-/portfolio/build/
+/.next/
+/out/
+/build/
 next-env.d.ts
 
 # Local Environment Variables & Secrets (CRITICAL for Github security)
