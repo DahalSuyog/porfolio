@@ -78,42 +78,6 @@ class DuelingDQN(nn.Module):
         return int(np.prod(o.size()))`
     },
     {
-      id: "traffic-opt",
-      title: "Traffic System Optimization",
-      category: "Deep Learning",
-      description: "Real-time AI vehicle density tracking coupled with Fuzzy Logic signal regulation.",
-      longDescription: "An end-to-end intelligent transit system. Implemented an R-CNN model using PyTorch to perform object detection on video streams, feeding vehicle counts into a Fuzzy Inference System (FIS). The FIS dynamically computes green light extensions based on traffic density, reducing peak wait times by 42%.",
-      tech: ["PyTorch", "Faster R-CNN", "Fuzzy Logic Core", "OpenCV", "Tkinter/Streamlit"],
-      specs: {
-        "Object Detector": "Faster R-CNN MobileNetV3",
-        "Inference Speed": "45 FPS on edge hardware",
-        "FIS Variables": "Queue Length, Arrival Rate, Current Green",
-        "Wait Reduction": "35-45% average improvement",
-        "Fuzzy Logic Engine": "Mamdani Inference Engine"
-      },
-      codeSnippet: `import skfuzzy as fuzz
-from skfuzzy import control as ctrl
-
-# Define Fuzzy Variables
-queue_len = ctrl.Antecedent(np.arange(0, 50, 1), 'queue_len')
-arrival_rate = ctrl.Antecedent(np.arange(0, 20, 1), 'arrival_rate')
-green_extension = ctrl.Consequent(np.arange(0, 60, 1), 'green_extension')
-
-# Membership functions
-queue_len['short'] = fuzz.trimf(queue_len.universe, [0, 0, 15])
-queue_len['medium'] = fuzz.trimf(queue_len.universe, [5, 20, 35])
-queue_len['long'] = fuzz.trimf(queue_len.universe, [25, 50, 50])
-
-green_extension['zero'] = fuzz.trimf(green_extension.universe, [0, 0, 10])
-green_extension['short'] = fuzz.trimf(green_extension.universe, [5, 20, 35])
-green_extension['long'] = fuzz.trimf(green_extension.universe, [30, 60, 60])
-
-# Control Rules
-rule1 = ctrl.Rule(queue_len['long'] & arrival_rate['high'], green_extension['long'])
-rule2 = ctrl.Rule(queue_len['short'], green_extension['zero'])
-rule3 = ctrl.Rule(queue_len['medium'], green_extension['short'])`
-    },
-    {
       id: "rag-llm",
       title: "RAG System with LLMs",
       category: "Deep Learning",
@@ -148,51 +112,6 @@ def execute_rag_pipeline(query, retriever, llm_chain):
     
     # 4. Generate query
     return llm_chain.run(context=context, question=query)`
-    },
-    {
-      id: "maze-runner",
-      title: "Maze-Runner AI Game Solver",
-      category: "Systems & Games",
-      description: "Interactive pathfinding solver visualizing DFS, BFS, and A* search in real-time.",
-      longDescription: "A game engine that simulates pathfinding algorithms in customizable 2D maze meshes. Features step-by-step visual expansions and performance diagnostics comparing standard traversal algorithms with heuristic-guided search optimizations.",
-      tech: ["C / SDL2 Core", "HTML5 Canvas", "Heuristic Optimization", "Pathfinding Algorithms"],
-      specs: {
-        "Grid Structure": "Random Kruskal-MST Generated Maze",
-        "Available Solvers": "DFS, BFS, Dijkstra, A* (Manhattan)",
-        "Heuristic Cost": "f(n) = g(n) + h(n)",
-        "Execution Overhead": "< 1.5ms calculation overhead"
-      },
-      codeSnippet: `// Heuristic Cost A* Search Node evaluation
-int calculate_manhattan_distance(Node a, Node b) {
-    return abs(a.x - b.x) + abs(a.y - b.y);
-}
-
-void solve_astar(Grid* grid, Node start, Node end) {
-    PriorityQueue open_set = create_priority_queue();
-    push(&open_set, start, 0);
-    
-    int g_score[MAX_X][MAX_Y];
-    fill_array(g_score, INFINITY);
-    g_score[start.x][start.y] = 0;
-    
-    while(!is_empty(&open_set)) {
-        Node current = pop_min(&open_set);
-        if (current.x == end.x && current.y == end.y) {
-            reconstruct_path(current);
-            return;
-        }
-        
-        for(Node neighbor : get_neighbors(grid, current)) {
-            int tentative_g = g_score[current.x][current.y] + 1;
-            if (tentative_g < g_score[neighbor.x][neighbor.y]) {
-                g_score[neighbor.x][neighbor.y] = tentative_g;
-                int f_score = tentative_g + calculate_manhattan_distance(neighbor, end);
-                push(&open_set, neighbor, f_score);
-                parent_map[neighbor.x][neighbor.y] = current;
-            }
-        }
-    }
-}`
     }
   ];
 
