@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import styles from "./layout.module.css";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -23,9 +24,7 @@ export default function RootLayout({
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body
-        className={`${spaceGrotesk.variable} antialiased bg-background text-on-surface font-sans selection:bg-primary/20 selection:text-primary min-h-screen flex flex-col`}
-      >
+      <body className={`${spaceGrotesk.variable} ${styles.body}`}>
         {children}
       </body>
     </html>

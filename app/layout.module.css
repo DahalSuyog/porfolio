@@ -1,0 +1,14 @@
+.body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-background, #090d0f);
+  color: var(--color-on-surface, #f1f5f9);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.body ::selection {
+  background: rgba(0, 229, 255, 0.2);
+  color: var(--color-primary, #00E5FF);
+}
