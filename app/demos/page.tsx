@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
+import React, { Suspense, useState } from "react";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import ContactModal from "../components/ContactModal";
 import styles from "./demos.module.css";
 
 interface Project {
@@ -17,32 +20,27 @@ interface Project {
   codeSnippet: string;
 }
 
-export default function DemosPage() {
-  // --- STATE ---
-  const [activeProjectId, setActiveProjectId] = useState<string>("dave-rl");
-  const [activeCategory, setActiveCategory] = useState<string>("All Systems");
-  const [activeTab, setActiveTab] = useState<"demo" | "specs" | "code">("demo");
-  const [showContactModal, setShowContactModal] = useState(false);
+const CATEGORIES = ["All", "Deep Learning", "Systems & Games"];
 
-  // --- DEFAULT PROJECTS SEED ---
-  const defaultProjects: Project[] = [
-    {
-      id: "dave-rl",
-      title: "RL Dangerous Dave",
-      category: "Deep Learning",
-      description: "Autonomous Deep Q-Network agent navigating a custom platformer game space.",
-      longDescription: "Created a Reinforcement Learning agent to play the classic platformer 'Dangerous Dave' by building a custom game environment. Optimized a DQN agent using target networks, experience replay, and double DQN modifications to achieve automated hazard avoidance and dynamic path optimization.",
-      tech: ["PyTorch", "Gymnasium", "OpenCV", "NumPy", "Double DQN"],
-      mediaUrl: "/demo_gifs/dangerous_dave_rl-gif.gif",
-      specs: {
-        "Neural Network": "3-layer CNN + Dueling Heads",
-        "Optimizer": "AdamW (lr=3e-4)",
-        "Experience Replay Size": "100,000 samples",
-        "Target Sync Frequency": "1,000 steps",
-        "Average Level Time": "24.5 seconds",
-        "Completion Rate": "95.6% @ 500 episodes"
-      },
-      codeSnippet: `import torch
+const DEFAULT_PROJECTS: Project[] = [
+  {
+    id: "dave-rl",
+    title: "RL Dangerous Dave",
+    category: "Deep Learning",
+    description: "A DQN agent that learns to play a custom platformer environment.",
+    longDescription:
+      "I built a custom OpenAI Gym environment for the classic platformer 'Dangerous Dave' and trained a DQN agent against it. Using experience replay, target networks, and a dueling architecture, the agent learns to avoid hazards and complete levels — reaching a 95% completion rate within 500 episodes.",
+    tech: ["PyTorch", "Gymnasium", "OpenCV", "NumPy"],
+    mediaUrl: "/demo_gifs/dangerous_dave_rl-gif.gif",
+    specs: {
+      "Neural network": "3-layer CNN with dueling heads",
+      "Optimizer": "AdamW (lr = 3e-4)",
+      "Experience replay": "100,000 samples",
+      "Target sync": "every 1,000 steps",
+      "Average level time": "24.5 seconds",
+      "Completion rate": "95.6% at 500 episodes",
+    },
+    codeSnippet: `import torch
 import torch.nn as nn
 
 class DuelingDQN(nn.Module):
@@ -57,7 +55,7 @@ class DuelingDQN(nn.Module):
             nn.ReLU()
         )
         conv_out_size = self._get_conv_out(input_shape)
-        
+
         self.value_stream = nn.Sequential(
             nn.Linear(conv_out_size, 512),
             nn.ReLU(),
@@ -77,107 +75,186 @@ class DuelingDQN(nn.Module):
 
     def _get_conv_out(self, shape):
         o = self.conv(torch.zeros(1, *shape))
-        return int(np.prod(o.size()))`
+        return int(np.prod(o.size()))`,
+  },
+  {
+    id: "rag-llm",
+    title: "RAG System with LLMs",
+    category: "Deep Learning",
+    description: "Retrieval-augmented generation with LangChain and local models.",
+    longDescription:
+      "A retrieval-augmented generation pipeline that grounds language model answers in source documents. Documents are chunked, embedded, and indexed locally, then retrieved at query time so the model can answer factually without fine-tuning. Built with LangChain and open-source embeddings.",
+    tech: ["LangChain", "Chroma DB", "Hugging Face", "Sentence Transformers"],
+    specs: {
+      "Vector store": "Chroma DB / FAISS",
+      "Embeddings model": "bge-large-en-v1.5",
+      "Chunking": "Recursive, 500 tokens with 50 overlap",
+      "Search metric": "Cosine similarity",
+      "Model integration": "Llama 3 8B Instruct / GPT-4o API",
     },
-    {
-      id: "rag-llm",
-      title: "RAG System with LLMs",
-      category: "Deep Learning",
-      description: "Retrieval-Augmented Generation pipeline visualizer detailing chunking and inference.",
-      longDescription: "Developed a Retrieval-Augmented Generation (RAG) dashboard highlighting vector DB matching and response synthesis. Features dense document indexing via FAISS and local embedding alignment, allowing robust factual querying without fine-tuning LLMs directly.",
-      tech: ["LangChain", "Chroma DB", "Hugging Face", "Sentence Transformers", "LlamaIndex"],
-      specs: {
-        "Vector Store": "Chroma Vector DB / FAISS Local",
-        "Embeddings Model": "bge-large-en-v1.5",
-        "Chunking Strategy": "RecursiveCharacter (500 tokens, 50 overlap)",
-        "Search Metric": "Cosine Similarity / Inner Product",
-        "Model Integration": "Llama 3 8B Instruct / GPT-4o API"
-      },
-      codeSnippet: `from langchain_community.vectorstores import FAISS
+    codeSnippet: `from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
 
 def initialize_rag(documents):
-    # 1. Chunk documents
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=500, chunk_overlap=50
+    )
     chunks = text_splitter.split_documents(documents)
-    
-    # 2. Embed and Index
+
     embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en-v1.5")
     db = FAISS.from_documents(chunks, embeddings)
     return db.as_retriever(search_kwargs={"k": 3})
 
-def execute_rag_pipeline(query, retriever, llm_chain):
-    # 3. Retrieve relevant pieces
+def run_pipeline(query, retriever, llm_chain):
     relevant_chunks = retriever.get_relevant_documents(query)
     context = "\\n\\n".join([c.page_content for c in relevant_chunks])
-    
-    # 4. Generate query
-    return llm_chain.run(context=context, question=query)`
-    }
-  ];
+    return llm_chain.run(context=context, question=query)`,
+  },
+  {
+    id: "traffic-opt",
+    title: "Traffic System Optimization",
+    category: "Systems & Games",
+    description: "Real-time vehicle detection with R-CNN and fuzzy logic.",
+    longDescription:
+      "An R-CNN model detects vehicle density in live traffic footage, feeding fuzzy logic rules that propose signal timing adjustments. A custom Streamlit interface lets you watch detection and the fuzzy reasoning happen in real time.",
+    tech: ["PyTorch", "Streamlit", "Fuzzy Logic"],
+    specs: {
+      "Detection model": "R-CNN (PyTorch)",
+      "Input": "Live traffic video stream",
+      "Decision layer": "Fuzzy inference on density",
+      "Visualization": "Streamlit dashboard",
+    },
+    codeSnippet: `import torch
+from torchvision.models.detection import fasterrcnn_resnet50_fpn
 
-  // --- INITIALIZATION ---
-  useEffect(() => {
-    // Check query params for starting project
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const proj = params.get("project");
-      if (proj && defaultProjects.some(p => p.id === proj)) {
-        setActiveProjectId(proj);
-      }
-    }
-  }, []);
+model = fasterrcnn_resnet50_fpn(pretrained=True)
+model.eval()
 
-  // --- FILTERS & GET ACTIVE PROJECT ---
-  const filteredProjects = defaultProjects.filter(p => {
-    if (activeCategory === "All Systems") return true;
+def detect_vehicles(frame, threshold=0.7):
+    tensor = to_tensor(frame).unsqueeze(0)
+    with torch.no_grad():
+        preds = model(tensor)[0]
+    boxes = preds["boxes"]
+    scores = preds["scores"]
+    keep = scores > threshold
+    return boxes[keep].tolist()`,
+  },
+  {
+    id: "maze-runner",
+    title: "Maze-Runner",
+    category: "Systems & Games",
+    description: "A 2D maze game written from scratch in C.",
+    longDescription:
+      "A 2D interactive maze game built in raw C, handling keyboard input, a render loop, and grid-based collision logic directly against the terminal. A study in low-level systems programming and game loop design.",
+    tech: ["C", "Low-level graphics"],
+    specs: {
+      "Language": "C (no game frameworks)",
+      "Rendering": "Terminal framebuffer",
+      "Collision": "Grid-based tile checks",
+      "Controls": "Arrow keys",
+    },
+    codeSnippet: `int move_player(Game *g, int dx, int dy) {
+    int nx = g->player.x + dx;
+    int ny = g->player.y + dy;
+
+    if (g->map[ny][nx] == WALL)
+        return 0; // blocked
+
+    g->player.x = nx;
+    g->player.y = ny;
+    if (g->map[ny][nx] == EXIT) {
+        g->state = LEVEL_COMPLETE;
+    }
+    return 1;
+}`,
+  },
+];
+
+export default function DemosPage() {
+  const [showContactModal, setShowContactModal] = useState(false);
+
+  return (
+    <div className={styles.page}>
+      <Navbar onContactClick={() => setShowContactModal(true)} activePage="demos" />
+
+      <Suspense
+        fallback={
+          <main className="flex-grow max-w-7xl mx-auto w-full px-6">
+            <p className={styles.suspenseFallback}>Loading projects…</p>
+          </main>
+        }
+      >
+        <DemosContent />
+      </Suspense>
+
+      <Footer onContactClick={() => setShowContactModal(true)} />
+
+      {showContactModal && <ContactModal onClose={() => setShowContactModal(false)} />}
+    </div>
+  );
+}
+
+function DemosContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const [selectedId, setSelectedId] = useState<string>("dave-rl");
+  const [activeCategory, setActiveCategory] = useState<string>("All");
+  const [activeTab, setActiveTab] = useState<"overview" | "details" | "code">("overview");
+
+  const requestedProject = DEFAULT_PROJECTS.find((p) => p.id === searchParams.get("project"));
+  const activeProjectId = requestedProject ? requestedProject.id : selectedId;
+
+  const filteredProjects = DEFAULT_PROJECTS.filter((p) => {
+    if (activeCategory === "All") return true;
     return p.category === activeCategory;
   });
 
-  const activeProject = defaultProjects.find(p => p.id === activeProjectId) || defaultProjects[0];
+  const activeProject =
+    DEFAULT_PROJECTS.find((p) => p.id === activeProjectId) || DEFAULT_PROJECTS[0];
 
   const handleCopyCode = () => {
-    if (activeProject) {
-      navigator.clipboard.writeText(activeProject.codeSnippet);
-      alert("Pipeline code copied to neural clipboard!");
+    navigator.clipboard.writeText(activeProject.codeSnippet);
+    alert("Code copied to clipboard.");
+  };
+
+  const selectProject = (id: string) => {
+    setSelectedId(id);
+    setActiveTab("overview");
+    router.replace(`/demos?project=${id}`, { scroll: false });
+  };
+
+  const handleCategoryChange = (cat: string) => {
+    setActiveCategory(cat);
+    const filtered = DEFAULT_PROJECTS.filter(
+      (p) => cat === "All" || p.category === cat
+    );
+    if (filtered.length > 0) {
+      setActiveTab("overview");
+      setSelectedId(filtered[0].id);
+      router.replace(`/demos?project=${filtered[0].id}`, { scroll: false });
     }
   };
 
   return (
-    <div className={styles.page}>
-      
-      <div className={styles.bgGlow} style={{ top: '-10%', left: '-10%', width: '50%', height: '50%' }} />
-      <div className={styles.bgGlow} style={{ bottom: '-10%', right: '-10%', width: '50%', height: '50%', opacity: 0.5 }} />
-
-      <Navbar onContactClick={() => setShowContactModal(true)} activePage="demos" />
-
-      <main className="flex-grow max-w-7xl mx-auto w-full px-6">
+    <main className="flex-grow max-w-7xl mx-auto w-full px-6">
         <div className={styles.header}>
-          <div className={styles.headerStatus}>
-            <div>HOST_AGENT: ANTIGRAVITY_3.5</div>
-            <div>STATUS: FULLY_OPERATIONAL</div>
-          </div>
-          <h1 className={styles.pageTitle}>
-            Neural Showcase
-          </h1>
+          <h1 className={styles.pageTitle}>Projects</h1>
           <p className={styles.pageDesc}>
-            Engineering specifications, algorithm core pipelines, and telemetry loops. Select a project below to inspect its architecture.
+            Live demos, technical details, and code for selected projects. Pick a
+            project to get started.
           </p>
         </div>
 
         <div className={styles.categoriesBar}>
-          {["All Systems", "Deep Learning", "Systems & Games"].map(cat => (
+          {CATEGORIES.map((cat) => (
             <button
               key={cat}
-              onClick={() => {
-                setActiveCategory(cat);
-                const filtered = defaultProjects.filter(p => cat === "All Systems" || p.category === cat);
-                if (filtered.length > 0) {
-                  setActiveProjectId(filtered[0].id);
-                }
-              }}
-              className={`${styles.catBtn} ${activeCategory === cat ? styles.catBtnActive : styles.catBtnInactive}`}
+              onClick={() => handleCategoryChange(cat)}
+              className={`${styles.catBtn} ${
+                activeCategory === cat ? styles.catBtnActive : styles.catBtnInactive
+              }`}
             >
               {cat}
             </button>
@@ -185,88 +262,68 @@ def execute_rag_pipeline(query, retriever, llm_chain):
         </div>
 
         <div className={styles.dashboard}>
-          
           <div className={styles.viewer}>
             <div className={styles.tabBar}>
-              <div className={styles.tabGroup}>
+              {(
+                [
+                  ["overview", "Overview"],
+                  ["details", "Details"],
+                  ["code", "Code"],
+                ] as const
+              ).map(([tab, label]) => (
                 <button
-                  onClick={() => setActiveTab("demo")}
-                  className={`${styles.tabBtn} ${activeTab === "demo" ? styles.tabBtnActive : styles.tabBtnInactive}`}
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`${styles.tabBtn} ${
+                    activeTab === tab ? styles.tabBtnActive : styles.tabBtnInactive
+                  }`}
                 >
-                  [ Live Telemetry ]
+                  {label}
                 </button>
-                <button
-                  onClick={() => setActiveTab("specs")}
-                  className={`${styles.tabBtn} ${activeTab === "specs" ? styles.tabBtnActive : styles.tabBtnInactive}`}
-                >
-                  [ Specifications ]
-                </button>
-                <button
-                  onClick={() => setActiveTab("code")}
-                  className={`${styles.tabBtn} ${activeTab === "code" ? styles.tabBtnActive : styles.tabBtnInactive}`}
-                >
-                  [ Pipeline Code ]
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className={styles.telemetryDot}></span>
-                <span className={styles.telemetryLabel}>
-                  TELEMETRY_ONLINE
-                </span>
-              </div>
+              ))}
             </div>
 
             <div className={styles.workspace}>
-              
               <div>
                 <div className={styles.projectMeta}>
-                  <span className={styles.projectCat}>
-                    {activeProject.category}
-                  </span>
-                  {activeProject.tech.map(t => (
+                  {activeProject.tech.map((t) => (
                     <span key={t} className={styles.projectTech}>
                       {t}
                     </span>
                   ))}
                 </div>
-                <h2 className={styles.projectName}>
-                  {activeProject.title}
-                </h2>
-                <p className={styles.projectDesc}>
-                  {activeProject.longDescription}
-                </p>
+                <h2 className={styles.projectName}>{activeProject.title}</h2>
+                <p className={styles.projectDesc}>{activeProject.longDescription}</p>
               </div>
 
-              <div className="flex-grow flex flex-col justify-center">
-                
-                {activeTab === "demo" && (
-                  <div className="w-full">
+              <div className={styles.body}>
+                {activeTab === "overview" && (
+                  <div>
                     {activeProject.mediaUrl ? (
                       <div className={styles.demoFrame}>
-                        <div className={`${styles.scanline}`} />
-                        <div className={styles.vignette} />
-                        
-                        <img
+                        <Image
                           src={activeProject.mediaUrl}
                           alt={activeProject.title}
-                          className={styles.mediaImage}
+                          fill
+                          unoptimized
+                          sizes="(min-width: 1024px) 60vw, 100vw"
+                          style={{ objectFit: "contain" }}
                         />
                       </div>
                     ) : (
                       <div className={styles.demoFrameEmpty}>
-                        <div className={`${styles.scanline} ${styles.scanlineEmpty}`} />
                         <div className={styles.emptyIconBox}>
-                          <span className={`material-symbols-outlined ${styles.emptyIcon}`}>
-                            videocam_off
+                          <span className="material-symbols-outlined text-4xl">
+                            description
                           </span>
                         </div>
                         <div>
                           <h4 className={styles.emptyTitle}>
-                            SPECIFICATION SHEET ACTIVE
+                            No recorded video
                           </h4>
                           <p className={styles.emptyDesc}>
-                            No visual telemetry loop has been recorded for this node yet. Use the specifications and code tabs to inspect architectural layouts.
+                            There is no visual recording for this project yet. See
+                            the Details and Code tabs for the full breakdown.
                           </p>
                         </div>
                       </div>
@@ -274,20 +331,14 @@ def execute_rag_pipeline(query, retriever, llm_chain):
                   </div>
                 )}
 
-                {activeTab === "specs" && (
+                {activeTab === "details" && (
                   <div className={styles.specsPanel}>
-                    <h3 className={styles.specsHeader}>
-                      <span className="material-symbols-outlined text-[16px]">rule</span>
-                      System Configuration Telemetry
-                    </h3>
-                    <div className="flex flex-col gap-3">
-                      {Object.entries(activeProject.specs).map(([key, val]) => (
-                        <div key={key} className={styles.specsRow}>
-                          <span className={styles.specsKey}>{key}:</span>
-                          <span className={styles.specsVal}>{val}</span>
-                        </div>
-                      ))}
-                    </div>
+                    {Object.entries(activeProject.specs).map(([key, val]) => (
+                      <div key={key} className={styles.specsRow}>
+                        <span className={styles.specsKey}>{key}</span>
+                        <span className={styles.specsVal}>{val}</span>
+                      </div>
+                    ))}
                   </div>
                 )}
 
@@ -295,13 +346,12 @@ def execute_rag_pipeline(query, retriever, llm_chain):
                   <div className={styles.codePanel}>
                     <div className={styles.codeFrame}>
                       <div className={styles.codeHeader}>
-                        <span>CORE ALGORITHM BLOCK</span>
-                        <button
-                          onClick={handleCopyCode}
-                          className={styles.copyCodeBtn}
-                        >
-                          <span className="material-symbols-outlined text-[12px]">content_copy</span>
-                          COPY_RAW
+                        <span>{activeProject.title.toLowerCase().replace(/\s+/g, "-")}.py</span>
+                        <button onClick={handleCopyCode} className={styles.copyCodeBtn}>
+                          <span className="material-symbols-outlined text-sm">
+                            content_copy
+                          </span>
+                          Copy
                         </button>
                       </div>
                       <pre className={styles.codeBlock}>
@@ -310,186 +360,42 @@ def execute_rag_pipeline(query, retriever, llm_chain):
                     </div>
                   </div>
                 )}
-
               </div>
-
             </div>
           </div>
 
           <div className={styles.sidebar}>
-            
-            <div className={styles.inventoryCard}>
-              <div className={styles.inventoryHeader}>
-                <h3 className={styles.inventoryTitle}>
-                  Systems Inventory
-                </h3>
-                <span className={styles.inventoryCount}>
-                  {filteredProjects.length} NODES
+            <div className={styles.projectList}>
+              <div className={styles.projectListHeader}>
+                <h3 className={styles.projectListTitle}>All projects</h3>
+                <span className={styles.projectCount}>
+                  {filteredProjects.length} shown
                 </span>
               </div>
 
-              <div className={styles.projectList}>
-                {filteredProjects.map(proj => {
-                  const isActive = proj.id === activeProjectId;
-                  return (
-                    <div
-                      key={proj.id}
-                      onClick={() => {
-                        setActiveProjectId(proj.id);
-                        setActiveTab("demo");
-                      }}
-                      className={`${styles.projectItem} ${isActive ? styles.projectItemActive : styles.projectItemInactive}`}
-                    >
-                      <div className={styles.projTop}>
-                        <div>
-                          <span className={styles.projCategory}>
-                            {proj.category}
-                          </span>
-                          <h4 className={styles.projName}>
-                            {proj.title}
-                          </h4>
-                        </div>
-                        
-                        <div className={styles.projStatus}>
-                          <span className={`${styles.projStatusDot} ${proj.mediaUrl ? styles.projStatusDotActive : styles.projStatusDotInactive}`} />
-                          <span className={styles.projStatusLabel}>
-                            {proj.mediaUrl ? "GIF_ACTIVE" : "SPECS_ONLY"}
-                          </span>
-                        </div>
-                      </div>
+              {filteredProjects.map((proj) => {
+                const isActive = proj.id === activeProjectId;
+                return (
+                  <button
+                    key={proj.id}
+                    onClick={() => selectProject(proj.id)}
+                    className={`${styles.projectItem} ${
+                      isActive ? styles.projectItemActive : styles.projectItemInactive
+                    }`}
+                  >
+                    <span className={styles.projCategory}>{proj.category}</span>
+                    <span className={styles.projName}>{proj.title}</span>
+                    <span className={styles.projDesc}>{proj.description}</span>
+                  </button>
+                );
+              })}
 
-                      <p className={styles.projDesc}>
-                        {proj.description}
-                      </p>
-                    </div>
-                  );
-                })}
-
-                {filteredProjects.length === 0 && (
-                  <div className={styles.emptyState}>
-                    NO ACTIVE NODES DETECTED IN THIS LAYER
-                  </div>
-                )}
-              </div>
+              {filteredProjects.length === 0 && (
+                <p className={styles.emptyState}>No projects in this category.</p>
+              )}
             </div>
-
-            <div className={styles.diagCard}>
-              <div className={styles.diagTitle}>
-                <span className="material-symbols-outlined text-[16px] text-primary">analytics</span>
-                Neural Diagnostics
-              </div>
-              <div className="flex flex-col gap-2 leading-relaxed">
-                <div className={styles.diagRow}>
-                  <span>TOTAL_PROJECT_NODES:</span>
-                  <span className={styles.diagVal}>{defaultProjects.length}</span>
-                </div>
-                <div className={styles.diagRow}>
-                  <span>VISUAL_TELEMETRY:</span>
-                  <span className={styles.diagVal}>
-                    {defaultProjects.filter(p => p.mediaUrl).length} ACTIVE
-                  </span>
-                </div>
-                <div className={styles.diagRow}>
-                  <span>DOCUMENTED_SPECS:</span>
-                  <span className={styles.diagVal}>100% COMPLETE</span>
-                </div>
-              </div>
-              <div className={styles.diagFooter}>
-                Double DQN update weights, Fuzzy control parameters, and vector cosine similarity structures are static specification references.
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <div className={styles.footerContent}>
-          <div className={styles.footerLinks}>
-            <a className={styles.footerLink} href="https://github.com" target="_blank" rel="noreferrer">
-              GitHub
-            </a>
-            <a className={styles.footerLink} href="https://linkedin.com/in/suyog-dahal" target="_blank" rel="noreferrer">
-              LinkedIn
-            </a>
-            <button
-              onClick={() => setShowContactModal(true)}
-              className={styles.footerLink}
-            >
-              Contact Me
-            </button>
-          </div>
-          <div className={styles.footerCopyright}>
-            © {new Date().getFullYear()} Suyog Dahal. Engineered for Machine Intelligence.
           </div>
         </div>
-      </footer>
-
-      {showContactModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <button
-              onClick={() => setShowContactModal(false)}
-              className={styles.modalClose}
-            >
-              <span className={`material-symbols-outlined ${styles.modalCloseIcon}`}>close</span>
-            </button>
-
-            <div className={styles.modalIconBox}>
-              <span className={`material-symbols-outlined ${styles.modalIcon}`}>contact_mail</span>
-            </div>
-
-            <h3 className={styles.modalTitle}>
-              Decrypted Comm-Link
-            </h3>
-            <p className={styles.modalSubtitle}>
-              SUYOG_DAHAL_CONNECT
-            </p>
-
-            <div className={styles.emailBox}>
-              <span className={styles.emailLabel}>
-                Primary Gmail Node
-              </span>
-              <span className={styles.emailAddress}>
-                sonofdahal@gmail.com
-              </span>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText("sonofdahal@gmail.com");
-                  alert("Gmail copied to neural clipboard!");
-                }}
-                className={styles.copyBtn}
-              >
-                <span className={`material-symbols-outlined ${styles.copyBtnIcon}`}>content_copy</span>
-                Copy Address
-              </button>
-            </div>
-
-            <div className={styles.socialSection}>
-              <span className={styles.socialLabel}>
-                Professional Network
-              </span>
-              <a
-                href="https://linkedin.com/in/suyog-dahal"
-                target="_blank"
-                rel="noreferrer"
-                className={styles.socialLink}
-                title="Open LinkedIn Profile"
-              >
-                <svg
-                  className={styles.socialIcon}
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-                </svg>
-              </a>
-            </div>
-
-          </div>
-        </div>
-      )}
-    </div>
+    </main>
   );
 }

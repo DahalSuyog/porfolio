@@ -9,6 +9,6 @@
 }
 
 .body ::selection {
-  background: rgba(0, 229, 255, 0.2);
-  color: var(--color-primary, #00E5FF);
+  background: rgba(201, 168, 124, 0.25);
+  color: var(--color-primary, #c9a87c);
 }

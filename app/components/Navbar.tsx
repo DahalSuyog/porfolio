@@ -12,38 +12,35 @@ interface NavbarProps {
 export default function Navbar({ onContactClick, activePage = "home" }: NavbarProps) {
   return (
     <nav className={styles.navbar}>
-      <Link href="/" className={styles.navbarLogo}>
-        Suyog.AI
+      <Link href="/" className={styles.logo}>
+        Suyog Dahal
       </Link>
-      <div className={styles.navLinks}>
-        <a
-          className={activePage === "home" ? styles.navLinkActive : styles.navLink}
+      <div className={styles.links}>
+        <Link
+          className={activePage === "home" ? styles.linkActive : styles.link}
           href="/#about"
         >
-          Neural Labs
-        </a>
-        <a className={styles.navLink} href="/#stack">
-          Stack
-        </a>
-        <a className={styles.navLink} href="/#archive">
-          Archive
-        </a>
+          About
+        </Link>
+        <Link className={styles.link} href="/#skills">
+          Skills
+        </Link>
+        <Link className={styles.link} href="/#work">
+          Work
+        </Link>
+        <Link className={styles.link} href="/#experience">
+          Experience
+        </Link>
         <Link
-          className={activePage === "demos" ? styles.navLinkActive : styles.navLinkDemos}
+          className={activePage === "demos" ? styles.linkActive : styles.link}
           href="/demos"
         >
           Demos
         </Link>
-        <a className={styles.navLink} href="/#experience">
-          History
-        </a>
       </div>
-      <div className={styles.navRight}>
-        <button className={styles.terminalBtn}>
-          <span className={`material-symbols-outlined ${styles.terminalIcon}`}>terminal</span>
-        </button>
+      <div className={styles.right}>
         <button onClick={onContactClick} className={styles.contactBtn}>
-          Contact Me
+          Contact
         </button>
       </div>
     </nav>

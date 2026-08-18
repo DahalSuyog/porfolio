@@ -1,41 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #090d0f;
-  --color-surface: #0f1415;
-  --color-surface-container: #171c1d;
-  --color-primary: #00E5FF;
-  --color-on-primary: #000000;
-  --color-on-surface: #f1f5f9;
-  --color-on-surface-variant: #94a3b8;
-  --color-outline: #334155;
+  --color-background: #121211;
+  --color-surface: #191918;
+  --color-surface-container: #222220;
+  --color-surface-container-high: #2b2b28;
+  --color-primary: #c9a87c;
+  --color-on-primary: #1a1510;
+  --color-on-surface: #eceae4;
+  --color-on-surface-variant: #8f8c85;
+  --color-outline: #3c3b37;
 
   --font-sans: var(--font-space-grotesk), sans-serif;
   --font-headline: var(--font-space-grotesk), sans-serif;
-  --font-body: var(--font-space-grotesk), sans-serif;
-  --font-label: var(--font-space-grotesk), sans-serif;
+  --font-body: var(--font-manrope), sans-serif;
+  --font-label: var(--font-manrope), sans-serif;
 }
 
 @layer utilities {
   .glass-panel {
-    background: rgba(23, 28, 29, 0.4);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-  }
-  .glow-text {
-    text-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
-  }
-  .glow-box {
-    box-shadow: 0 0 30px rgba(0, 229, 255, 0.15);
+    background: rgba(34, 34, 32, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
   .ghost-border {
-    border: 1px solid rgba(51, 65, 85, 0.3);
+    border: 1px solid rgba(236, 234, 228, 0.08);
   }
-  .tech-grid {
-    background-image: 
-        linear-gradient(to right, rgba(0, 229, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
-    background-size: 60px 60px;
+  .ambient-shadow {
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
   }
 }
 
