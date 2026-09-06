@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // A stray package-lock.json in the home directory makes Next infer the
+  // wrong workspace root, which breaks Tailwind module resolution in dev.
+  turbopack: {
+    root: path.join(__dirname),
+  },
 };
 
 export default nextConfig;

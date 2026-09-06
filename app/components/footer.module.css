@@ -59,6 +59,31 @@
   color: var(--color-primary, #c9a87c);
 }
 
+.meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+@media (min-width: 768px) {
+  .meta {
+    align-items: flex-end;
+  }
+}
+
+.clock {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-on-surface-variant, #8f8c85);
+  font-variant-numeric: tabular-nums;
+}
+
+.clockTime {
+  color: var(--color-primary, #c9a87c);
+}
+
 .copyright {
   font-family: var(--font-body);
   font-size: 0.75rem;

@@ -12,6 +12,8 @@ interface Project {
   id: string;
   title: string;
   category: string;
+  /** Scoped accent color used only inside this project's detail panel */
+  accent: string;
   description: string;
   longDescription: string;
   tech: string[];
@@ -27,60 +29,64 @@ const DEFAULT_PROJECTS: Project[] = [
     id: "dave-rl",
     title: "RL Dangerous Dave",
     category: "Deep Learning",
-    description: "A DQN agent that learns to play a custom platformer environment.",
+    accent: "#e05a3a",
+    description:
+      "A curiosity-driven PPO agent for a PyGame Dangerous Dave environment.",
     longDescription:
-      "I built a custom OpenAI Gym environment for the classic platformer 'Dangerous Dave' and trained a DQN agent against it. Using experience replay, target networks, and a dueling architecture, the agent learns to avoid hazards and complete levels — reaching a 95% completion rate within 500 episodes.",
-    tech: ["PyTorch", "Gymnasium", "OpenCV", "NumPy"],
+      "A playable PyGame re-creation of Dangerous Dave, the 1990 DOS platformer, wrapped as a Gymnasium environment and solved with PPO augmented by Random Network Distillation. A frozen target network and a trainable predictor turn prediction error on novel frames into intrinsic curiosity, so the agent explores well beyond what the score reward alone would teach it. Observations are 4-frame stacks of grayscale captures (with text and grid modes available), training runs on parallel vectorized environments, and every evaluation is automatically exported to video with ffmpeg.",
+    tech: ["PyTorch", "Gymnasium", "Stable-Baselines3", "PyGame", "NumPy"],
     mediaUrl: "/demo_gifs/dangerous_dave_rl-gif.gif",
     specs: {
-      "Neural network": "3-layer CNN with dueling heads",
-      "Optimizer": "AdamW (lr = 3e-4)",
-      "Experience replay": "100,000 samples",
-      "Target sync": "every 1,000 steps",
-      "Average level time": "24.5 seconds",
-      "Completion rate": "95.6% at 500 episodes",
+      "Algorithm": "PPO + Random Network Distillation (RND)",
+      "Curiosity reward": "Prediction error against a frozen target network",
+      "Network": "Shared CNN trunk, actor + extrinsic/intrinsic value heads",
+      "Action space": "Discrete(7): movement, diagonal jumps, no-op",
+      "Observations": "4 stacked grayscale frames; text and grid modes",
+      "Reward shaping": "Score delta per step, -0.1 step penalty",
+      "Training setup": "4 parallel envs, 1,000-step rollouts, annealed lr",
     },
-    codeSnippet: `import torch
-import torch.nn as nn
+    codeSnippet: `from torch.distributions.categorical import Categorical
+from algos.utils import layer_init
 
-class DuelingDQN(nn.Module):
-    def __init__(self, input_shape, num_actions):
+class Agent(nn.Module):
+    def __init__(self, envs):
         super().__init__()
-        self.conv = nn.Sequential(
-            nn.Conv2d(input_shape[0], 32, kernel_size=8, stride=4),
+        self.network = nn.Sequential(
+            layer_init(nn.Conv2d(4, 32, 8, stride=4)),
             nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2),
+            layer_init(nn.Conv2d(32, 64, 4, stride=2)),
             nn.ReLU(),
-            nn.Conv2d(64, 64, kernel_size=3, stride=1),
-            nn.ReLU()
+            layer_init(nn.Conv2d(64, 64, 3, stride=1)),
+            nn.ReLU(),
+            nn.Flatten(),
+            layer_init(nn.Linear(64 * 8 * 4, 256)),
+            nn.ReLU(),
+            layer_init(nn.Linear(256, 448)),
+            nn.ReLU(),
         )
-        conv_out_size = self._get_conv_out(input_shape)
-
-        self.value_stream = nn.Sequential(
-            nn.Linear(conv_out_size, 512),
+        self.actor = nn.Sequential(
+            layer_init(nn.Linear(448, 448), std=0.01),
             nn.ReLU(),
-            nn.Linear(512, 1)
+            layer_init(nn.Linear(448, envs.single_action_space.n), std=0.01),
         )
-        self.advantage_stream = nn.Sequential(
-            nn.Linear(conv_out_size, 512),
-            nn.ReLU(),
-            nn.Linear(512, num_actions)
-        )
+        # two critics: extrinsic (game score) and intrinsic (curiosity)
+        self.critic_ext = layer_init(nn.Linear(448, 1), std=0.01)
+        self.critic_int = layer_init(nn.Linear(448, 1), std=0.01)
 
-    def forward(self, state):
-        features = self.conv(state).view(state.size(0), -1)
-        values = self.value_stream(features)
-        advantages = self.advantage_stream(features)
-        return values + (advantages - advantages.mean(dim=1, keepdim=True))
-
-    def _get_conv_out(self, shape):
-        o = self.conv(torch.zeros(1, *shape))
-        return int(np.prod(o.size()))`,
+    def get_action_and_value(self, x, action=None):
+        hidden = self.network(x / 255.0)
+        logits = self.actor(hidden)
+        probs = Categorical(logits=logits)
+        if action is None:
+            action = probs.sample()
+        return action, probs.log_prob(action), probs.entropy(), \\
+               self.critic_ext(hidden), self.critic_int(hidden)`,
   },
   {
     id: "rag-llm",
     title: "RAG System with LLMs",
     category: "Deep Learning",
+    accent: "#8fb573",
     description: "Retrieval-augmented generation with LangChain and local models.",
     longDescription:
       "A retrieval-augmented generation pipeline that grounds language model answers in source documents. Documents are chunked, embedded, and indexed locally, then retrieved at query time so the model can answer factually without fine-tuning. Built with LangChain and open-source embeddings.",
@@ -115,6 +121,7 @@ def run_pipeline(query, retriever, llm_chain):
     id: "traffic-opt",
     title: "Traffic System Optimization",
     category: "Systems & Games",
+    accent: "#e0a13c",
     description: "Real-time vehicle detection with R-CNN and fuzzy logic.",
     longDescription:
       "An R-CNN model detects vehicle density in live traffic footage, feeding fuzzy logic rules that propose signal timing adjustments. A custom Streamlit interface lets you watch detection and the fuzzy reasoning happen in real time.",
@@ -144,6 +151,7 @@ def detect_vehicles(frame, threshold=0.7):
     id: "maze-runner",
     title: "Maze-Runner",
     category: "Systems & Games",
+    accent: "#5db3c9",
     description: "A 2D maze game written from scratch in C.",
     longDescription:
       "A 2D interactive maze game built in raw C, handling keyboard input, a render loop, and grid-based collision logic directly against the terminal. A study in low-level systems programming and game loop design.",
@@ -262,7 +270,10 @@ function DemosContent() {
         </div>
 
         <div className={styles.dashboard}>
-          <div className={styles.viewer}>
+          <div
+            className={styles.viewer}
+            style={{ "--project-accent": activeProject.accent } as React.CSSProperties}
+          >
             <div className={styles.tabBar}>
               {(
                 [
@@ -382,6 +393,7 @@ function DemosContent() {
                     className={`${styles.projectItem} ${
                       isActive ? styles.projectItemActive : styles.projectItemInactive
                     }`}
+                    style={{ "--item-accent": proj.accent } as React.CSSProperties}
                   >
                     <span className={styles.projCategory}>{proj.category}</span>
                     <span className={styles.projName}>{proj.title}</span>

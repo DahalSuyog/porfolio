@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./footer.module.css";
 
 interface FooterProps {
@@ -8,6 +8,22 @@ interface FooterProps {
 }
 
 export default function Footer({ onContactClick }: FooterProps) {
+  const [time, setTime] = useState<string | null>(null);
+
+  useEffect(() => {
+    const formatter = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Kathmandu",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+    const update = () => setTime(formatter.format(new Date()));
+    update();
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <footer className={styles.footer}>
       <div className={styles.content}>
@@ -36,7 +52,12 @@ export default function Footer({ onContactClick }: FooterProps) {
             Contact
           </button>
         </div>
-        <p className={styles.copyright}>© {new Date().getFullYear()} Suyog Dahal</p>
+        <div className={styles.meta}>
+          <p className={styles.clock} suppressHydrationWarning>
+            Kathmandu <span className={styles.clockTime}>{time ?? "NPT"}</span>
+          </p>
+          <p className={styles.copyright}>© {new Date().getFullYear()} Suyog Dahal</p>
+        </div>
       </div>
     </footer>
   );

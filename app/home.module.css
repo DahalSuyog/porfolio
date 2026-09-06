@@ -30,6 +30,53 @@
   gap: 1.5rem;
 }
 
+/* --- Page-load sequence ---
+   The name rises out of a mask first; everything else follows in a short
+   cascade. Runs once, then the page is still. */
+
+.heroMask {
+  overflow: hidden;
+  padding-bottom: 0.1em;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .heroTitle {
+    animation: heroRise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+  }
+
+  .heroFade1 {
+    animation: heroFadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.55s both;
+  }
+
+  .heroFade2 {
+    animation: heroFadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both;
+  }
+
+  .heroFade3 {
+    animation: heroFadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.85s both;
+  }
+}
+
+@keyframes heroRise {
+  from {
+    transform: translateY(115%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .availability {
   display: inline-flex;
   align-items: center;
@@ -50,18 +97,18 @@
 
 .heroTitle {
   font-family: var(--font-headline);
-  font-size: clamp(3rem, 8vw, 5.5rem);
-  font-weight: 600;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
+  font-size: clamp(3.25rem, 8vw, 6rem);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
   color: var(--color-on-surface, #eceae4);
 }
 
 .heroRole {
   font-family: var(--font-headline);
-  font-size: 1.375rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 0;
   color: var(--color-primary, #c9a87c);
   margin-top: -0.75rem;
 }
@@ -114,25 +161,41 @@
   color: var(--color-primary, #c9a87c);
 }
 
-/* --- Hero visual --- */
+/* --- Hero visual: the training curve --- */
 .heroVisual {
-  display: none;
+  width: 100%;
 }
 
-@media (min-width: 768px) {
-  .heroVisual {
-    display: block;
-  }
+.curvePanel {
+  background: var(--color-surface, #191918);
+  border: 1px solid rgba(236, 234, 228, 0.08);
+  border-radius: 1.25rem;
+  padding: 1.75rem 1.75rem 1.25rem;
 }
 
-.visual {
-  aspect-ratio: 4 / 5;
-  border-radius: 2.5rem;
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(201, 168, 124, 0.16), transparent 60%),
-    radial-gradient(ellipse at 80% 80%, rgba(201, 168, 124, 0.08), transparent 55%),
-    var(--color-surface-container, #222220);
-  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.3);
+.curveCaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(236, 234, 228, 0.06);
+}
+
+.curveCaptionLabel {
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--color-on-surface-variant, #8f8c85);
+}
+
+.curveCaptionValue {
+  font-family: var(--font-headline);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-primary, #c9a87c);
+  white-space: nowrap;
 }
 
 /* --- Sections --- */
@@ -166,16 +229,17 @@
 
 .sectionTitle {
   font-family: var(--font-headline);
-  font-size: 2.25rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: 2.5rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
   color: var(--color-on-surface, #eceae4);
   margin-bottom: 1rem;
 }
 
 @media (min-width: 768px) {
   .sectionTitle {
-    font-size: 3rem;
+    font-size: 3.25rem;
   }
 }
 
@@ -213,7 +277,13 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  height: 100%;
   transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.skillReveal,
+.workReveal {
+  height: 100%;
 }
 
 .skillCard:hover {
@@ -235,9 +305,9 @@
 
 .skillTitle {
   font-family: var(--font-headline);
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 1.375rem;
+  font-weight: 500;
+  letter-spacing: 0;
   color: var(--color-on-surface, #eceae4);
   margin-bottom: 0.75rem;
 }
@@ -290,6 +360,7 @@
   align-items: flex-start;
   gap: 1rem;
   min-height: 16rem;
+  height: 100%;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -316,10 +387,39 @@
 
 .workTitle {
   font-family: var(--font-headline);
-  font-size: 1.375rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: 0;
   color: var(--color-on-surface, #eceae4);
+}
+
+/* Stat set in the display serif: the real numbers from each project,
+   treated as typography rather than badges. */
+.workStat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(236, 234, 228, 0.08);
+}
+
+.workStatValue {
+  font-family: var(--font-headline);
+  font-size: 2.375rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-on-surface, #eceae4);
+  font-variant-numeric: lining-nums;
+}
+
+.workStatLabel {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--color-on-surface-variant, #8f8c85);
+  max-width: 11rem;
 }
 
 .workDesc {
@@ -328,7 +428,6 @@
   font-weight: 300;
   line-height: 1.7;
   color: var(--color-on-surface-variant, #8f8c85);
-  margin-bottom: auto;
 }
 
 .workLink {
@@ -339,7 +438,6 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-primary, #c9a87c);
-  margin-top: 1rem;
   transition: color 0.2s;
 }
 
@@ -388,9 +486,9 @@
 
 .timelineTitle {
   font-family: var(--font-headline);
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 1.375rem;
+  font-weight: 500;
+  letter-spacing: 0;
   color: var(--color-on-surface, #eceae4);
 }
 
