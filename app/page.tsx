@@ -5,7 +5,7 @@ import Link from "next/link";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ContactModal from "./components/ContactModal";
-import RewardCurve from "./components/RewardCurve";
+import HeroOrbit from "./components/HeroOrbit";
 import CurveDivider from "./components/CurveDivider";
 import Reveal from "./components/Reveal";
 import styles from "./home.module.css";
@@ -15,15 +15,8 @@ const WORK_PROJECTS = [
     id: "dave-rl",
     tags: ["Reinforcement learning", "PPO + RND"],
     title: "RL Dangerous Dave",
-    desc: "A PPO agent augmented with Random Network Distillation plays a PyGame re-creation of Dangerous Dave, wrapped as a custom Gymnasium environment — curiosity, not just score, drives the learning.",
+    desc: "A PPO agent augmented with Random Network Distillation plays a PyGame re-creation of Dangerous Dave, wrapped as a custom Gymnasium environment. Curiosity, not just score, drives the learning.",
     stat: { value: "2", label: "reward streams: game score + intrinsic curiosity" },
-  },
-  {
-    id: "rag-llm",
-    tags: ["RAG", "LLMs"],
-    title: "RAG System with LLMs",
-    desc: "A retrieval-augmented generation pipeline using LangChain and open-source models, with document chunking, vector indexing, and contextual query inference.",
-    stat: { value: "k = 3", label: "sources retrieved per query" },
   },
   {
     id: "traffic-opt",
@@ -31,13 +24,6 @@ const WORK_PROJECTS = [
     title: "Traffic System Optimization",
     desc: "An R-CNN model detects vehicle density in real time, with fuzzy logic and image detection visualized through a custom Streamlit interface.",
     stat: { value: "0.7", label: "detection confidence threshold" },
-  },
-  {
-    id: "maze-runner",
-    tags: ["Full-stack", "Systems C"],
-    title: "Class Portal & Maze-Runner",
-    desc: "A full-stack portal for administrators, teachers, and students built with PHP and MySQL, alongside a 2D maze game written in raw C with custom collision logic.",
-    stat: { value: "0", label: "game frameworks, written in raw C" },
   },
 ];
 
@@ -61,9 +47,9 @@ export default function Home() {
                 AI Engineer &amp; Researcher
               </p>
               <p className={`${styles.heroIntro} ${styles.heroFade2}`}>
-                I design and build machine intelligence — reinforcement learning
-                agents, retrieval systems, and the full-stack applications around
-                them. Working from Kathmandu (GMT+5:45) with teams anywhere.
+                I design and build machine intelligence through reinforcement-learning
+                agents, computer-vision systems, and the full-stack applications
+                around them. Working from Kathmandu (GMT+5:45) with teams anywhere.
               </p>
               <div className={`${styles.heroActions} ${styles.heroFade3}`}>
                 <Link href="/#work" className={styles.ctaPrimary}>
@@ -76,13 +62,9 @@ export default function Home() {
             </div>
 
             <div className={`${styles.heroVisual} ${styles.heroFade2}`}>
-              <figure className={styles.curvePanel}>
-                <RewardCurve />
-                <figcaption className={styles.curveCaption}>
-                  <span className={styles.curveCaptionLabel}>Reward per episode</span>
-                  <span className={styles.curveCaptionValue}>500 training episodes</span>
-                </figcaption>
-              </figure>
+              <div className={styles.signalPanel}>
+                <HeroOrbit />
+              </div>
             </div>
           </div>
         </section>
@@ -118,8 +100,8 @@ export default function Home() {
                 {
                   icon: "science",
                   title: "Deep & reinforcement learning",
-                  desc: "Designing and tuning models — from DQN agents in simulated environments to RAG pipelines and object detection.",
-                  tags: ["PyTorch", "LangChain", "Deep-Q Learning", "R-CNN", "LLMs / RAG"],
+                  desc: "Designing and tuning models, from curiosity-driven agents in simulated environments to computer-vision systems.",
+                  tags: ["PyTorch", "Gymnasium", "PPO / RND", "R-CNN", "Computer vision"],
                 },
               ].map((skill, i) => (
                 <Reveal key={skill.title} delay={i * 100} className={styles.skillReveal}>
@@ -151,8 +133,7 @@ export default function Home() {
                 <h2 className={styles.sectionLabel}>Selected work</h2>
                 <h3 className={styles.sectionTitle}>Projects</h3>
                 <p className={styles.sectionDesc}>
-                  A few systems I have designed, trained, and shipped. Each project
-                  has a live demo and documentation.
+                  Two focused systems exploring agent learning and computer vision.
                 </p>
               </div>
             </Reveal>

@@ -28,7 +28,7 @@ export default function ContactModal({ onClose }: ContactModalProps) {
 
         <h3 className={styles.title}>Get in touch</h3>
         <p className={styles.subtitle}>
-          Questions, opportunities, or just a hello — my inbox is open.
+          Questions, opportunities, or just a hello. My inbox is open.
         </p>
 
         <div className={styles.emailBox}>

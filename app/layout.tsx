@@ -16,7 +16,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Suyog Dahal — AI Engineer",
+  title: "Suyog Dahal | AI Engineer",
   description:
     "Portfolio of Suyog Dahal, an aspiring AI researcher and software engineer.",
 };

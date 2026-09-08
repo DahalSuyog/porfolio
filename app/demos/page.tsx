@@ -22,7 +22,7 @@ interface Project {
   codeSnippet: string;
 }
 
-const CATEGORIES = ["All", "Deep Learning", "Systems & Games"];
+const CATEGORIES = ["All", "Deep Learning"];
 
 const DEFAULT_PROJECTS: Project[] = [
   {
@@ -83,44 +83,9 @@ class Agent(nn.Module):
                self.critic_ext(hidden), self.critic_int(hidden)`,
   },
   {
-    id: "rag-llm",
-    title: "RAG System with LLMs",
-    category: "Deep Learning",
-    accent: "#8fb573",
-    description: "Retrieval-augmented generation with LangChain and local models.",
-    longDescription:
-      "A retrieval-augmented generation pipeline that grounds language model answers in source documents. Documents are chunked, embedded, and indexed locally, then retrieved at query time so the model can answer factually without fine-tuning. Built with LangChain and open-source embeddings.",
-    tech: ["LangChain", "Chroma DB", "Hugging Face", "Sentence Transformers"],
-    specs: {
-      "Vector store": "Chroma DB / FAISS",
-      "Embeddings model": "bge-large-en-v1.5",
-      "Chunking": "Recursive, 500 tokens with 50 overlap",
-      "Search metric": "Cosine similarity",
-      "Model integration": "Llama 3 8B Instruct / GPT-4o API",
-    },
-    codeSnippet: `from langchain_community.vectorstores import FAISS
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_huggingface import HuggingFaceEmbeddings
-
-def initialize_rag(documents):
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500, chunk_overlap=50
-    )
-    chunks = text_splitter.split_documents(documents)
-
-    embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en-v1.5")
-    db = FAISS.from_documents(chunks, embeddings)
-    return db.as_retriever(search_kwargs={"k": 3})
-
-def run_pipeline(query, retriever, llm_chain):
-    relevant_chunks = retriever.get_relevant_documents(query)
-    context = "\\n\\n".join([c.page_content for c in relevant_chunks])
-    return llm_chain.run(context=context, question=query)`,
-  },
-  {
     id: "traffic-opt",
     title: "Traffic System Optimization",
-    category: "Systems & Games",
+    category: "Deep Learning",
     accent: "#e0a13c",
     description: "Real-time vehicle detection with R-CNN and fuzzy logic.",
     longDescription:
@@ -146,36 +111,6 @@ def detect_vehicles(frame, threshold=0.7):
     scores = preds["scores"]
     keep = scores > threshold
     return boxes[keep].tolist()`,
-  },
-  {
-    id: "maze-runner",
-    title: "Maze-Runner",
-    category: "Systems & Games",
-    accent: "#5db3c9",
-    description: "A 2D maze game written from scratch in C.",
-    longDescription:
-      "A 2D interactive maze game built in raw C, handling keyboard input, a render loop, and grid-based collision logic directly against the terminal. A study in low-level systems programming and game loop design.",
-    tech: ["C", "Low-level graphics"],
-    specs: {
-      "Language": "C (no game frameworks)",
-      "Rendering": "Terminal framebuffer",
-      "Collision": "Grid-based tile checks",
-      "Controls": "Arrow keys",
-    },
-    codeSnippet: `int move_player(Game *g, int dx, int dy) {
-    int nx = g->player.x + dx;
-    int ny = g->player.y + dy;
-
-    if (g->map[ny][nx] == WALL)
-        return 0; // blocked
-
-    g->player.x = nx;
-    g->player.y = ny;
-    if (g->map[ny][nx] == EXIT) {
-        g->state = LEVEL_COMPLETE;
-    }
-    return 1;
-}`,
   },
 ];
 
@@ -250,8 +185,7 @@ function DemosContent() {
         <div className={styles.header}>
           <h1 className={styles.pageTitle}>Projects</h1>
           <p className={styles.pageDesc}>
-            Live demos, technical details, and code for selected projects. Pick a
-            project to get started.
+            Technical notes and implementation excerpts for selected projects.
           </p>
         </div>
 

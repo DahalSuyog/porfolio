@@ -1,0 +1,121 @@
+.field {
+  aspect-ratio: 12 / 8;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0.875rem;
+  background:
+    linear-gradient(145deg, rgba(201, 168, 124, 0.055), transparent 48%),
+    var(--color-background, #121211);
+  color: var(--color-primary, #c9a87c);
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.contour,
+.contourMuted,
+.orbitLine,
+.coreRing {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.contour {
+  stroke: url(#orbitStroke);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.contourMuted {
+  stroke: currentColor;
+  stroke-opacity: 0.15;
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.orbitLine {
+  stroke: currentColor;
+  stroke-opacity: 0.3;
+  stroke-width: 1;
+}
+
+.coreRing {
+  stroke: currentColor;
+  stroke-opacity: 0.45;
+  stroke-width: 1;
+}
+
+.core {
+  fill: currentColor;
+  fill-opacity: 0.16;
+  stroke: currentColor;
+  stroke-width: 1;
+}
+
+.coreDot,
+.satellite,
+.satelliteSmall,
+.satelliteMuted {
+  fill: currentColor;
+}
+
+.satellite {
+  fill-opacity: 0.9;
+}
+
+.satelliteSmall {
+  fill-opacity: 0.7;
+}
+
+.satelliteMuted {
+  fill-opacity: 0.42;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .orbitWide,
+  .orbitTall,
+  .orbitTilt {
+    transform-box: view-box;
+    transform-origin: 240px 170px;
+  }
+
+  .orbitWide {
+    animation: orbit 20s linear infinite;
+  }
+
+  .orbitTall {
+    animation: orbitReverse 26s linear infinite;
+  }
+
+  .orbitTilt {
+    animation: orbit 32s linear infinite;
+  }
+
+  .core {
+    animation: breathe 5s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+}
+
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbitReverse {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes breathe {
+  50% {
+    fill-opacity: 0.3;
+    transform: scale(1.08);
+  }
+}
