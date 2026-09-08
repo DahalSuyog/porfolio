@@ -129,6 +129,12 @@
   color: var(--color-on-surface-variant, #8f8c85);
 }
 
+.socialLinks {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
 .socialLink {
   width: 2.75rem;
   height: 2.75rem;

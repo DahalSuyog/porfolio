@@ -42,21 +42,42 @@ export default function ContactModal({ onClose }: ContactModalProps) {
 
         <div className={styles.socialSection}>
           <span className={styles.socialLabel}>Elsewhere</span>
-          <a
-            href="https://linkedin.com/in/suyog-dahal"
-            target="_blank"
-            rel="noreferrer"
-            className={styles.socialLink}
-            title="Open LinkedIn profile"
-          >
-            <svg
-              className={styles.socialIcon}
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
+          <div className={styles.socialLinks}>
+            <a
+              href="https://github.com/DahalSuyog"
+              target="_blank"
+              rel="noreferrer"
+              className={styles.socialLink}
+              aria-label="Open GitHub profile"
+              title="Open GitHub profile"
             >
-              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-            </svg>
-          </a>
+              <svg
+                className={styles.socialIcon}
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path d="M12 .5a12 12 0 0 0-3.79 23.39c.6.11.82-.26.82-.58v-2.24c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.72.08-.72 1.2.08 1.84 1.23 1.84 1.23 1.07 1.83 2.81 1.3 3.5.99.11-.77.42-1.3.76-1.6-2.67-.3-5.48-1.34-5.48-5.95 0-1.31.47-2.38 1.23-3.22-.12-.3-.53-1.53.12-3.19 0 0 1.01-.32 3.3 1.23A11.44 11.44 0 0 1 12 6.08c1.02 0 2.05.14 3.01.41 2.29-1.55 3.3-1.23 3.3-1.23.65 1.66.24 2.89.12 3.19.77.84 1.23 1.91 1.23 3.22 0 4.62-2.81 5.64-5.49 5.94.43.37.81 1.08.81 2.18v3.24c0 .32.22.7.83.58A12 12 0 0 0 12 .5Z" />
+              </svg>
+            </a>
+            <a
+              href="https://www.linkedin.com/in/suyog-dahal-452801274/"
+              target="_blank"
+              rel="noreferrer"
+              className={styles.socialLink}
+              aria-label="Open LinkedIn profile"
+              title="Open LinkedIn profile"
+            >
+              <svg
+                className={styles.socialIcon}
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
     </div>

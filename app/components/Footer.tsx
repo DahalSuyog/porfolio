@@ -34,7 +34,7 @@ export default function Footer({ onContactClick }: FooterProps) {
         <div className={styles.links}>
           <a
             className={styles.link}
-            href="https://github.com"
+            href="https://github.com/DahalSuyog"
             target="_blank"
             rel="noreferrer"
           >
@@ -42,7 +42,7 @@ export default function Footer({ onContactClick }: FooterProps) {
           </a>
           <a
             className={styles.link}
-            href="https://linkedin.com/in/suyog-dahal"
+            href="https://www.linkedin.com/in/suyog-dahal-452801274/"
             target="_blank"
             rel="noreferrer"
           >
