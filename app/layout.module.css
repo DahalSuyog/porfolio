@@ -1,14 +1,18 @@
 .body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--color-background, #090d0f);
-  color: var(--color-on-surface, #f1f5f9);
+  background: var(--color-background, #121211);
+  color: var(--color-on-surface, #eceae4);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 .body ::selection {
-  background: rgba(201, 168, 124, 0.25);
-  color: var(--color-primary, #c9a87c);
+  background: rgba(201, 168, 124, 0.3);
+  color: var(--color-on-surface, #eceae4);
+}
+
+.main {
+  flex-grow: 1;
 }

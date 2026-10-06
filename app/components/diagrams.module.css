@@ -1,0 +1,242 @@
+.diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--font-body);
+}
+
+/* --- shared strokes --- */
+.wire,
+.wireAccent,
+.wireDashed {
+  fill: none;
+  stroke-width: 1.5;
+}
+
+.wire {
+  stroke: var(--color-on-surface-variant);
+  stroke-opacity: 0.6;
+}
+
+.wireAccent {
+  stroke: var(--color-primary);
+}
+
+.wireDashed {
+  stroke: var(--color-on-surface-variant);
+  stroke-opacity: 0.5;
+  stroke-dasharray: 4 5;
+}
+
+.arrowHead {
+  fill: var(--color-on-surface-variant);
+}
+
+.arrowHeadAccent {
+  fill: var(--color-primary);
+}
+
+.title,
+.titleAccent {
+  font-family: var(--font-headline);
+  font-size: 19px;
+  fill: var(--color-on-surface);
+}
+
+.titleAccent {
+  fill: var(--color-primary);
+}
+
+.label {
+  font-size: 14px;
+  fill: var(--color-on-surface-variant);
+}
+
+/* --- RND --- */
+.frame,
+.frameBack {
+  fill: var(--color-surface-container-high);
+  stroke: var(--color-on-surface-variant);
+  stroke-width: 1;
+}
+
+.frameBack {
+  stroke-opacity: 0.35;
+  fill: var(--color-surface-container);
+}
+
+.box,
+.boxAccent {
+  fill: var(--color-surface-container);
+  stroke: var(--color-on-surface-variant);
+  stroke-opacity: 0.5;
+  stroke-width: 1;
+}
+
+.boxAccent {
+  stroke: var(--color-primary);
+  stroke-opacity: 1;
+}
+
+.node {
+  fill: var(--color-background);
+  stroke: var(--color-primary);
+  stroke-width: 1.5;
+}
+
+.minus {
+  stroke: var(--color-primary);
+  stroke-width: 2;
+}
+
+/* --- Traffic --- */
+.road {
+  fill: var(--color-surface-container);
+}
+
+.laneMark {
+  fill: none;
+  stroke: var(--color-on-surface-variant);
+  stroke-opacity: 0.35;
+  stroke-width: 1.5;
+  stroke-dasharray: 10 10;
+}
+
+.stopLine {
+  fill: none;
+  stroke: var(--color-on-surface);
+  stroke-opacity: 0.5;
+  stroke-width: 2;
+}
+
+.car {
+  fill: var(--color-on-surface-variant);
+  fill-opacity: 0.55;
+}
+
+.detect {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 1.25;
+}
+
+.signalOn {
+  fill: var(--color-primary);
+}
+
+.signalOff {
+  fill: none;
+  stroke: var(--color-on-surface-variant);
+  stroke-opacity: 0.6;
+  stroke-width: 1.5;
+}
+
+.count,
+.countAccent {
+  font-size: 18px;
+  font-weight: 500;
+  fill: var(--color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+.countAccent {
+  fill: var(--color-primary);
+}
+
+/* --- Motion ---
+   Keyed off the nearest InView ancestor (data-inview), only once JS runs
+   (html.js) and only when the visitor allows motion. */
+
+.pulse {
+  fill: var(--color-on-surface);
+}
+
+.pulseAccent {
+  fill: var(--color-primary);
+}
+
+.ripple {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 1.5;
+}
+
+.scanLine {
+  fill: var(--color-primary);
+  opacity: 0;
+}
+
+/* Static by default: no pulses, no scan */
+.pulses {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pulses {
+    display: inline;
+  }
+
+  :global(.js) [data-inview] .stage,
+  :global(.js) [data-inview] .pulses,
+  :global(.js) [data-inview] .count,
+  :global(.js) [data-inview] .countAccent {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    transition-delay: var(--d, 0ms);
+  }
+
+  :global(.js) [data-inview] .pulses {
+    --d: 1300ms;
+  }
+
+  /* Detection boxes "lock on": they start loose and tighten onto the car */
+  :global(.js) [data-inview] .detect {
+    opacity: 0;
+    transform: scale(1.5);
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      opacity 0.25s ease,
+      transform 0.45s var(--ease-out);
+    transition-delay: var(--d, 0ms);
+  }
+
+  :global(.js) [data-inview] .signalOn {
+    fill: transparent;
+    stroke: var(--color-primary);
+    stroke-width: 1.5;
+    transition: fill 0.4s ease 1.9s;
+  }
+
+  :global(.js) [data-inview="true"] .stage,
+  :global(.js) [data-inview="true"] .pulses,
+  :global(.js) [data-inview="true"] .count,
+  :global(.js) [data-inview="true"] .countAccent,
+  :global(.js) [data-inview="true"] .detect {
+    opacity: 1;
+    transform: none;
+  }
+
+  :global(.js) [data-inview="true"] .signalOn {
+    fill: var(--color-primary);
+  }
+
+  :global(.js) [data-inview="true"] .scanLine {
+    animation: sweep 1.4s var(--ease-draw) both;
+  }
+}
+
+@keyframes sweep {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  10%,
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(638px);
+  }
+}

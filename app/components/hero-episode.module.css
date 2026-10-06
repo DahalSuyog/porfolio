@@ -1,0 +1,141 @@
+.episode {
+  width: 100%;
+  margin: 0;
+}
+
+.screen {
+  background: #000;
+  border-radius: 0.625rem;
+  overflow: hidden;
+  border: 1px solid var(--color-outline);
+}
+
+.gif {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+/* --- Reward chart --- */
+.chart {
+  margin-top: 1.25rem;
+}
+
+.chart svg {
+  display: block;
+  width: 100%;
+  height: 5.5rem;
+  overflow: visible;
+}
+
+.axis {
+  stroke: var(--color-outline);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.line {
+  fill: none;
+  stroke-width: 1.75;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.score {
+  stroke: var(--color-primary);
+}
+
+.curiosity {
+  stroke: var(--color-on-surface-variant);
+  stroke-opacity: 0.7;
+}
+
+/* Part of the hero load sequence (see home.module.css): after the name
+   settles, the screen opens and both curves draw once, left to right, as if
+   the run were happening. Then everything holds still. */
+@media (prefers-reduced-motion: no-preference) {
+  /* the screen opens top to bottom, like a game booting */
+  .screen {
+    animation: open 1.1s var(--ease-draw) 0.5s both;
+  }
+
+  .line {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw 2.6s cubic-bezier(0.45, 0, 0.2, 1) 1.35s forwards;
+  }
+
+  .curiosity {
+    animation-delay: 1.5s;
+  }
+
+  .legend,
+  .caption {
+    animation: fadeIn 0.8s ease 1.6s both;
+  }
+}
+
+@keyframes open {
+  from {
+    clip-path: inset(0 0 100% 0 round 0.625rem);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 0.625rem);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+  list-style: none;
+  padding: 0;
+  font-size: 0.8125rem;
+  color: var(--color-on-surface-variant);
+}
+
+.legendScore,
+.legendCuriosity {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legendScore::before,
+.legendCuriosity::before {
+  content: "";
+  width: 1.25rem;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.legendScore::before {
+  background: var(--color-primary);
+}
+
+.legendCuriosity::before {
+  background: var(--color-on-surface-variant);
+  opacity: 0.7;
+}
+
+.caption {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-on-surface-variant);
+  max-width: 34rem;
+}

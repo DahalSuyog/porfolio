@@ -8,8 +8,8 @@
   --color-primary: #c9a87c;
   --color-on-primary: #1a1510;
   --color-on-surface: #eceae4;
-  --color-on-surface-variant: #8f8c85;
-  --color-outline: #3c3b37;
+  --color-on-surface-variant: #9c988f;
+  --color-outline: #2f2e2b;
 
   --font-sans: var(--font-manrope), sans-serif;
   --font-headline: var(--font-newsreader), Georgia, serif;
@@ -17,68 +17,185 @@
   --font-label: var(--font-manrope), sans-serif;
 }
 
-@layer utilities {
-  .glass-panel {
-    background: rgba(34, 34, 32, 0.6);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-  }
-  .ghost-border {
-    border: 1px solid rgba(236, 234, 228, 0.08);
-  }
-  .ambient-shadow {
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
-  }
-  .curveDivider {
-    color: var(--color-primary, #c9a87c);
-    opacity: 0.45;
-    margin-bottom: 3.5rem;
-  }
-  .curveDivider svg {
-    display: block;
-    width: 100%;
-    height: 3.5rem;
-  }
-}
-
 html {
   scroll-behavior: smooth;
+  /* anchored sections clear the sticky navbar */
+  scroll-padding-top: 5rem;
 }
 
-/* --- Scroll reveal infrastructure ---
-   Elements carry data-reveal="rise|fade|left" and start hidden only when the
-   user accepts motion. The Reveal component flips data-visible="true" once the
-   element enters the viewport. Descendants can key effects off
-   [data-visible="true"] (e.g. the drawing curve dividers). */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.material-symbols-outlined {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* --- Motion ---
+   One vocabulary everywhere: lines draw in left to right, and things settle
+   into place the way a training run converges. Everything below is opt-in via
+   prefers-reduced-motion: no-preference, and only hides content once JS has
+   marked <html class="js">, so nothing is stranded invisible. */
+
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-draw: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* A hairline rule along the top edge, drawn on reveal */
+.rule {
+  position: relative;
+}
+
+.rule::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-outline);
+  transform-origin: left;
+}
+
+/* A line of text that rises out of its own baseline */
+.mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+
+.mask > * {
+  display: block;
+}
 
 @media (prefers-reduced-motion: no-preference) {
-  [data-reveal] {
+  .js [data-inview] .reveal {
     opacity: 0;
+    transform: translateY(1rem);
     transition:
-      opacity 0.7s ease,
-      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 0.8s var(--ease-out),
+      transform 0.8s var(--ease-out);
+    transition-delay: var(--d, 0ms);
   }
 
-  [data-reveal="rise"] {
-    transform: translateY(1.75rem);
+  .js [data-inview] .mask > * {
+    transform: translateY(110%);
+    transition: transform 1s var(--ease-out);
+    transition-delay: var(--d, 0ms);
   }
 
-  [data-reveal="left"] {
-    transform: translateX(-1.75rem);
+  .js [data-inview].rule::before,
+  .js [data-inview] .rule::before {
+    transform: scaleX(0);
+    transition: transform 1.3s var(--ease-draw);
+    transition-delay: var(--d, 0ms);
   }
 
-  [data-reveal][data-visible="true"] {
+  .js [data-inview="true"] .reveal,
+  .js [data-inview="true"] .mask > * {
     opacity: 1;
     transform: none;
   }
 
-  [data-reveal] .curveDraw {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    transition: stroke-dashoffset 1.6s cubic-bezier(0.4, 0, 0.2, 1);
+  .js [data-inview="true"].rule::before,
+  .js [data-inview="true"] .rule::before {
+    transform: scaleX(1);
   }
+}
 
-  [data-reveal][data-visible="true"] .curveDraw {
-    stroke-dashoffset: 0;
+/* --- Page transitions (React <ViewTransition>, see next.config.ts) --- */
+
+/* The header is the fixed reference point: it never slides */
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+
+::view-transition-old(site-header) {
+  display: none;
+}
+
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+/* Project title morphs from the home row into the case-study heading */
+::view-transition-group(.morph) {
+  animation-duration: 550ms;
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-image-pair(.morph) {
+  animation-name: via-blur;
+}
+
+@keyframes via-blur {
+  40% {
+    filter: blur(4px);
+  }
+}
+
+::view-transition-old(.nav-forward) {
+  --slide-offset: -48px;
+  animation:
+    160ms ease-in both vt-fade reverse,
+    420ms var(--ease-draw) both vt-slide reverse;
+}
+
+::view-transition-new(.nav-forward) {
+  --slide-offset: 48px;
+  animation:
+    240ms ease-out 160ms both vt-fade,
+    420ms var(--ease-draw) both vt-slide;
+}
+
+::view-transition-old(.nav-back) {
+  --slide-offset: 48px;
+  animation:
+    160ms ease-in both vt-fade reverse,
+    420ms var(--ease-draw) both vt-slide reverse;
+}
+
+::view-transition-new(.nav-back) {
+  --slide-offset: -48px;
+  animation:
+    240ms ease-out 160ms both vt-fade,
+    420ms var(--ease-draw) both vt-slide;
+}
+
+@keyframes vt-fade {
+  from {
+    opacity: 0;
+    filter: blur(3px);
+  }
+}
+
+@keyframes vt-slide {
+  from {
+    translate: var(--slide-offset);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 }

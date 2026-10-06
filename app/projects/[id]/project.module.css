@@ -1,0 +1,246 @@
+.page {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem clamp(4rem, 8vw, 6rem);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--color-on-surface-variant);
+  transition: color 0.2s;
+}
+
+.back:hover {
+  color: var(--color-on-surface);
+}
+
+/* --- Load sequence for the header and media --- */
+@media (prefers-reduced-motion: no-preference) {
+  .loadIn {
+    animation: loadIn 0.9s var(--ease-out) var(--d, 0ms) both;
+  }
+}
+
+@keyframes loadIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
+/* --- Header --- */
+.header {
+  margin-top: clamp(2rem, 5vw, 3.5rem);
+  max-width: 52rem;
+}
+
+.title {
+  font-family: var(--font-headline);
+  font-size: clamp(2.75rem, 7vw, 5.5rem);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  color: var(--color-on-surface);
+}
+
+.lead {
+  font-family: var(--font-headline);
+  font-size: clamp(1.25rem, 2.2vw, 1.625rem);
+  line-height: 1.4;
+  color: var(--color-on-surface);
+  margin-top: 1.5rem;
+  max-width: 40rem;
+}
+
+.tech {
+  margin-top: 1.25rem;
+  font-size: 0.9375rem;
+  color: var(--color-on-surface-variant);
+}
+
+.techLabel {
+  color: var(--color-on-surface);
+  font-weight: 500;
+}
+
+/* --- Media --- */
+.media {
+  margin: clamp(2.5rem, 5vw, 4rem) 0 0;
+}
+
+.screen {
+  background: #000;
+  border: 1px solid var(--color-outline);
+  border-radius: 0.625rem;
+  overflow: hidden;
+}
+
+.gif {
+  display: block;
+  width: 100%;
+  max-width: 64rem;
+  height: auto;
+  margin: 0 auto;
+  image-rendering: pixelated;
+}
+
+.diagramFrame {
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  border-radius: 0.625rem;
+  padding: clamp(0.75rem, 3vw, 2.5rem);
+}
+
+.caption {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-on-surface-variant);
+  max-width: 40rem;
+}
+
+/* --- Body columns --- */
+.columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3.5rem;
+  margin-top: clamp(3.5rem, 7vw, 5.5rem);
+}
+
+@media (min-width: 960px) {
+  .columns {
+    grid-template-columns: 7fr 5fr;
+    gap: 5rem;
+  }
+}
+
+.h2 {
+  font-family: var(--font-headline);
+  font-size: 1.75rem;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--color-on-surface);
+  margin-bottom: 1.25rem;
+}
+
+.prose {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 38rem;
+}
+
+.prose p {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--color-on-surface-variant);
+}
+
+.inlineDiagram {
+  margin: 2.5rem 0 0;
+}
+
+/* --- Specs --- */
+/* Each row's top line is the global .rule, drawn in one after another */
+.specs {
+  margin: 0;
+  border-bottom: 1px solid var(--color-outline);
+}
+
+.specRow {
+  padding: 0.875rem 0;
+}
+
+.specRow dt {
+  font-size: 0.8125rem;
+  color: var(--color-on-surface-variant);
+}
+
+.specRow dd {
+  margin: 0.25rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-on-surface);
+}
+
+/* --- Code --- */
+.codeSection {
+  margin-top: clamp(3.5rem, 7vw, 5.5rem);
+}
+
+.codeFrame {
+  background: var(--color-surface);
+  border: 1px solid var(--color-outline);
+  border-radius: 0.625rem;
+  overflow: hidden;
+}
+
+.codeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.625rem 1.25rem;
+  border-bottom: 1px solid var(--color-outline);
+  font-size: 0.8125rem;
+  color: var(--color-on-surface-variant);
+}
+
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-on-surface-variant);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  transition: color 0.2s;
+}
+
+.copyBtn:hover {
+  color: var(--color-on-surface);
+}
+
+.codeBlock {
+  margin: 0;
+  padding: 1.25rem;
+  overflow: auto;
+  max-height: 28rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  color: var(--color-on-surface);
+  tab-size: 4;
+}
+
+/* --- Next project --- */
+.next {
+  margin-top: clamp(3.5rem, 7vw, 5.5rem);
+  padding-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nextLabel {
+  font-size: 0.875rem;
+  color: var(--color-on-surface-variant);
+}
+
+.nextLink {
+  font-family: var(--font-headline);
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--color-on-surface);
+  transition: color 0.2s;
+}
+
+.nextLink:hover {
+  color: var(--color-primary);
+}

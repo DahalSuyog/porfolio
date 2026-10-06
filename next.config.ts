@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname),
   },
+  experimental: {
+    // React <ViewTransition> for route changes (title morph, page slides)
+    viewTransition: true,
+  },
 };
 
 export default nextConfig;

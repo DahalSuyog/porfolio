@@ -1,48 +1,71 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import ContactButton from "./ContactButton";
 import styles from "./navbar.module.css";
 
-interface NavbarProps {
-  onContactClick: () => void;
-  activePage?: "home" | "demos";
-}
+const LINKS = [
+  { href: "/#projects", label: "Projects", match: "/projects" },
+  { href: "/#experience", label: "Experience" },
+  { href: "/#skills", label: "Skills" },
+  { href: "/#education", label: "Education" },
+];
 
-export default function Navbar({ onContactClick, activePage = "home" }: NavbarProps) {
+export default function Navbar() {
+  const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  // from a case study, every nav link leads back up to the home page
+  const transitionTypes = pathname.startsWith("/projects") ? ["nav-back"] : undefined;
+
   return (
-    <nav className={styles.navbar}>
-      <Link href="/" className={styles.logo}>
-        Suyog Dahal
-      </Link>
-      <div className={styles.links}>
+    <header className={styles.navbar} style={{ viewTransitionName: "site-header" }}>
+      <div className={styles.inner}>
         <Link
-          className={activePage === "home" ? styles.linkActive : styles.link}
-          href="/#about"
+          href="/"
+          className={styles.logo}
+          transitionTypes={transitionTypes}
+          onClick={() => setMenuOpen(false)}
         >
-          About
+          Suyog Dahal
         </Link>
-        <Link className={styles.link} href="/#skills">
-          Skills
-        </Link>
-        <Link className={styles.link} href="/#work">
-          Work
-        </Link>
-        <Link className={styles.link} href="/#experience">
-          Experience
-        </Link>
-        <Link
-          className={activePage === "demos" ? styles.linkActive : styles.link}
-          href="/demos"
+
+        <button
+          type="button"
+          className={styles.menuBtn}
+          aria-expanded={menuOpen}
+          aria-controls="site-nav"
+          onClick={() => setMenuOpen((open) => !open)}
         >
-          Demos
-        </Link>
-      </div>
-      <div className={styles.right}>
-        <button onClick={onContactClick} className={styles.contactBtn}>
-          Contact
+          {menuOpen ? "Close" : "Menu"}
         </button>
+
+        <nav
+          id="site-nav"
+          aria-label="Main"
+          className={`${styles.nav} ${menuOpen ? styles.navOpen : ""}`}
+        >
+          {LINKS.map((link) => {
+            const active = link.match !== undefined && pathname.startsWith(link.match);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                transitionTypes={transitionTypes}
+                className={active ? styles.linkActive : styles.link}
+                aria-current={active ? "page" : undefined}
+                onClick={() => setMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+          <ContactButton className={styles.contactBtn} onOpen={() => setMenuOpen(false)}>
+            Contact
+          </ContactButton>
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 }
