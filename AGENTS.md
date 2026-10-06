@@ -16,20 +16,26 @@ memory.
 
 ## Architecture
 
-- Two-page App Router app, both pages are `"use client"`:
-  - `app/page.tsx` — home (hero, skills, work, experience, footer)
-  - `app/demos/page.tsx` — project showcase; project data is **hardcoded** in the
-    `DEFAULT_PROJECTS` array (4 entries: `dave-rl`, `rag-llm`, `traffic-opt`, `maze-runner`).
-- Shared components live in `app/components/`: `Navbar.tsx`, `Footer.tsx`, and
-  `ContactModal.tsx` (with `*module.css` files). Use these instead of duplicating
-  footer/modal markup on a page.
-- The demos page treats the URL as source of truth: it reads the `project` query
-  param via `useSearchParams()` and updates it with `router.replace(...)` on
-  selection. That component is wrapped in a `<Suspense>` boundary (required for
-  static prerender). Don't reintroduce `setState`-inside-`useEffect` to read the URL.
-- Icons are Google **Material Symbols**: `<span className="material-symbols-outlined">icon_name</span>`
-  (loaded in `app/layout.tsx`). Fonts: **Space Grotesk** (display/headline) and
-  **Manrope** (body/label), both via `next/font`.
+- App Router; pages are **server components**. Client code lives only in small
+  components (`Navbar`, `Footer`, `ContactButton`, `ContactModal`, `CopyButton`).
+- `app/layout.tsx` renders the shared `Navbar` and `Footer` around every page.
+- `app/page.tsx` — home: hero (name + `HeroEpisode`), projects, experience, skills, education.
+- `app/projects/data.ts` — **single source of project data** (`PROJECTS`), used by
+  the home page and the case studies.
+- `app/projects/[id]/page.tsx` — case-study pages, prerendered via
+  `generateStaticParams` with `dynamicParams = false`. `params` is a Promise.
+- `app/demos/page.tsx` only redirects old `/demos?project=<id>` links to
+  `/projects/<id>` (or `/#projects`).
+- Contact: use `<ContactButton>`; it owns the native `<dialog>` (`ContactModal`)
+  and portals it to `<body>`. Shared URLs/email live in `app/components/links.ts`.
+- `HeroEpisode` (agent GIF + illustrative score/curiosity curves) and
+  `Diagrams.tsx` (`RndSchematic`, `TrafficSchematic`) are the project visuals.
+  The curves and schematics are labelled as illustrative — keep them honest;
+  don't add numeric results that aren't from real training runs.
+- Icons are Google **Material Symbols**, loaded in `app/layout.tsx` with an
+  `icon_names=` allowlist (alphabetical). **Add a new icon's name there** or it
+  renders as text. Fonts: **Newsreader** (display/headings) and **Manrope**
+  (body), both via `next/font`.
 
 ## Styling
 
@@ -37,12 +43,37 @@ memory.
   **no `tailwind.config.js`** and no `content` array. Theme color/font tokens live
   in `@theme`.
 - Pages mix Tailwind utilities with **per-page CSS Modules** (`home.module.css`,
-  `demos.module.css`, `navbar.module.css`, `layout.module.css`, plus the shared
+  `projects/[id]/project.module.css`, `navbar.module.css`, `layout.module.css`, plus the shared
   component modules). Keep both conventions.
-- Current design system is **neutral/editorial**: warm near-black backgrounds
-  (`--color-background: #121211`), layered neutrals, single brass accent
-  `--color-primary: #c9a87c`. No cyan, no glow/scanline/CRT effects, no monospace
-  labels, no blanket `text-transform: uppercase` — use normal casing and Manrope.
+- Current design system is **neutral/editorial and minimal**: warm near-black
+  background (`--color-background: #121211`), hairline `--color-outline` rules,
+  single brass accent `--color-primary: #c9a87c` (no per-project accent colors).
+  Small radii (0.375rem controls, 0.625rem media), no pill tags, no card hover
+  lifts, no section eyebrow labels. Body text weight 400.
+- Every section uses the same frame: `width: calc(100% - 3rem); max-width: 73rem`
+  so rules align with content; the navbar/footer match it.
+- `:focus-visible` is styled globally; keep interactive elements keyboard-visible.
+
+## Motion
+
+- One vocabulary: **lines draw in left to right, things settle into place**
+  (like a training run converging). Don't add unrelated effects (bounces, glows,
+  parallax, generic fade-ups on everything).
+- Scroll reveals: wrap in `<InView>` (sets `data-inview`) and use the global
+  classes in `globals.css` — `.rule` (top hairline that draws), `.mask` (text
+  rises from its baseline; needs a single child), `.reveal` (fade-rise). Stagger
+  with an inline `--d` delay. Don't nest `InView`s: `[data-inview="true"]`
+  matches any ancestor, so an outer one would trigger the inner content early.
+- Hidden states apply only under `html.js` (set by an inline script in
+  `layout.tsx`) and `prefers-reduced-motion: no-preference`. Keep both guards.
+- Diagram animation (RND pulses via SVG SMIL, traffic scan/lock-on) lives in
+  `diagrams.module.css`; pulses are `display: none` under reduced motion because
+  SMIL ignores that media query.
+- Route transitions use React `<ViewTransition>` (`experimental.viewTransition`
+  in `next.config.ts`). Project titles share `name="project-title-<id>"`
+  between the home row and the case-study `h1`. Links into a case study pass
+  `transitionTypes={["nav-forward"]}`, links back pass `["nav-back"]`. The
+  header has `viewTransitionName: "site-header"` so it never slides.
 - The old `stitch_neural_rl_portfolio/*/DESIGN.md` files describe a superseded
   cyan "AI" theme and are **outdated** relative to the code — trust the live tokens.
 
